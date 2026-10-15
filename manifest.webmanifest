@@ -1,0 +1,17 @@
+{
+  "name": "Editor de PDF · Amigos for Christ",
+  "short_name": "PDF Amigos",
+  "description": "Editor de PDF gratuito. Los archivos se procesan en tu dispositivo.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0A2240",
+  "theme_color": "#0A2240",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
