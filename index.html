@@ -532,9 +532,10 @@ function dropzone(container, { accept, multiple, label, hint }, onFiles) {
 }
 const isPdf = f => f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
 
+const openers = {}; // cómo abrir archivos en cada herramienta (lo usa «Abrir con» de Windows)
 function singleFile(prefix, onLoad, onReset) {
   const dz = $('#' + prefix + '-dz'), work = $('#' + prefix + '-work');
-  dropzone(dz, { accept: 'application/pdf,.pdf', multiple: false, label: 'Elegí un PDF', hint: 'o arrastralo aquí' }, async ([f]) => {
+  dropzone(dz, { accept: 'application/pdf,.pdf', multiple: false, label: 'Elegí un PDF', hint: 'o arrastralo aquí' }, openers[prefix] = async ([f]) => {
     if (!isPdf(f)) return toast('Ese archivo no es un PDF', 'err');
     busy(true, 'Abriendo ' + f.name + '…');
     try {
@@ -555,7 +556,7 @@ function singleFile(prefix, onLoad, onReset) {
    UNIR
    ========================================================= */
 const merge = { files: [] };
-dropzone($('#merge-dz'), { accept: 'application/pdf,.pdf', multiple: true, label: 'Elegí tus PDF', hint: 'Podés agregar varios a la vez, o arrastrarlos aquí' }, async files => {
+dropzone($('#merge-dz'), { accept: 'application/pdf,.pdf', multiple: true, label: 'Elegí tus PDF', hint: 'Podés agregar varios a la vez, o arrastrarlos aquí' }, openers.merge = async files => {
   busy(true, 'Leyendo archivos…');
   for (const f of files) {
     if (!isPdf(f)) { toast(f.name + ' no es un PDF', 'err'); continue; }
@@ -1161,6 +1162,19 @@ $('#ios-close').onclick = () => $('#ios-dlg').close();
 if (canPWA && 'serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
 
 setTool('edit');
+
+/* ---------- «Abrir con» / doble clic en un PDF (app instalada en Windows) ----------
+   Un PDF se abre en Editar; si se eligen varios a la vez, van a Unir. */
+if ('launchQueue' in window) window.launchQueue.setConsumer(async p => {
+  if (!p.files || !p.files.length) return;
+  try {
+    const files = (await Promise.all(p.files.map(h => h.getFile()))).filter(isPdf);
+    if (!files.length) return toast('Ese archivo no es un PDF', 'err');
+    const tool = files.length > 1 ? 'merge' : 'edit';
+    setTool(tool);
+    await openers[tool](files);
+  } catch { toast('No se pudo abrir el archivo', 'err'); }
+});
 })();
 </script>
 </body>

@@ -1,6 +1,6 @@
 // Service worker: permite instalar la app y usarla sin conexión.
 // Al publicar cambios en index.html, subí el número de versión para refrescar la caché.
-const CACHE = 'pdf-amigos-v1';
+const CACHE = 'pdf-amigos-v2';
 const CORE = [
   './', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png',

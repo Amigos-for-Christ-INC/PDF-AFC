@@ -21,6 +21,10 @@ Editor de PDF gratuito que funciona en el navegador y se puede instalar como app
 
 Después de abrirla una vez, también funciona sin internet.
 
+### Abrir los PDF con la app (Windows)
+
+Una vez instalada en Edge o Chrome, la app aparece en **Abrir con…** para los archivos `.pdf`. La primera vez el navegador pregunta si se permite; marcá *Recordar mi elección*. Un PDF se abre directo en **Editar**; si elegís varios a la vez, van a **Unir**.
+
 ## Archivos
 
 | Archivo | Para qué sirve |
@@ -30,7 +34,7 @@ Después de abrirla una vez, también funciona sin internet.
 | `sw.js` | Permite instalarla y usarla sin conexión |
 | `icons/` | Íconos de la app |
 
-Al publicar cambios en `index.html`, cambiá `CACHE = 'pdf-amigos-v1'` en `sw.js` a `v2`, `v3`, etc., para que los teléfonos descarguen la versión nueva.
+Al publicar cambios en `index.html`, subí el número de `CACHE = 'pdf-amigos-v2'` en `sw.js` (`v3`, `v4`, etc.), para que los teléfonos descarguen la versión nueva.
 
 ## Librerías
 
