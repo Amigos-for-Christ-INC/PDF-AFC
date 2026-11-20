@@ -13,6 +13,10 @@ Editor de PDF gratuito que funciona en el navegador y se puede instalar como app
 - **Comprimir**: tres niveles de compresión.
 - **Imágenes a PDF**: JPG, PNG o WEBP a PDF (Carta, A4 o tamaño de la imagen).
 - **Marca de agua**: logo de Amigos for Christ o texto, y números de página, con vista previa.
+- **Quitar marca de agua**:
+  - *PDF, detección automática*: encuentra las marcas guardadas como elementos aparte (las de Word, Acrobat, capas «marca de agua», anotaciones, y las que pone esta misma app) y las borra sin tocar el resto del documento.
+  - *Borrar a mano*: para fotos, capturas y PDF escaneados. Se marca la marca de agua con el pincel o la varita (que elige por color) y la app rellena esa zona con lo que la rodea.
+  - Usala con archivos propios, de Amigos, o con permiso de su dueño.
 
 ## Instalar en el celular
 

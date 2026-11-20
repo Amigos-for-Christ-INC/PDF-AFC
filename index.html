@@ -19,7 +19,7 @@
 <style>
 :root{
   --bg:#F5EDEC; --surface:#FFFFFF; --surface-2:#F8F4F3; --ink:#414042; --head:#0A2240; --muted:#6D6E71;
-  --line:#DCD8DF; --accent:#00758F; --accent-ink:#FFFFFF; --link:#00758F; --h2:#00758F; --navy:#0A2240; --hi:#96D1DE;
+  --line:#DCD8DF; --accent:#00758F; --accent-ink:#FFFFFF; --link:#00758F; --h2:#00758F; --pressed:#0A2240; --navy:#0A2240; --hi:#96D1DE;
   --danger:#B3261E; --shadow:0 1px 2px rgba(10,34,64,.08),0 10px 28px rgba(10,34,64,.10);
   color-scheme:light;
   box-sizing:border-box;
@@ -29,14 +29,14 @@
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#06172B; --surface:#0A2240; --surface-2:#10304F; --ink:#F5EDEC; --head:#FFFFFF; --muted:#B3C3D3;
-    --line:#1D4166; --accent:#00758F; --accent-ink:#FFFFFF; --link:#96D1DE; --h2:#96D1DE; --danger:#FF8A80;
+    --line:#1D4166; --accent:#00758F; --accent-ink:#FFFFFF; --link:#96D1DE; --h2:#96D1DE; --pressed:#00758F; --danger:#FF8A80;
     --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.35);
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --bg:#06172B; --surface:#0A2240; --surface-2:#10304F; --ink:#F5EDEC; --head:#FFFFFF; --muted:#B3C3D3;
-  --line:#1D4166; --accent:#00758F; --accent-ink:#FFFFFF; --link:#96D1DE; --h2:#96D1DE; --danger:#FF8A80;
+  --line:#1D4166; --accent:#00758F; --accent-ink:#FFFFFF; --link:#96D1DE; --h2:#96D1DE; --pressed:#00758F; --danger:#FF8A80;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.35);
   color-scheme:dark;
 }
@@ -90,7 +90,7 @@ main{min-width:0}
 .btn.primary:hover:not(:disabled){filter:brightness(1.08);border-color:var(--accent)}
 .btn.danger{color:var(--danger)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
-.btn[aria-pressed="true"]{background:var(--navy,#0A2240);color:#fff;border-color:#0A2240}
+.btn[aria-pressed="true"]{background:var(--pressed);color:#fff;border-color:var(--pressed)}
 .linkbtn{background:none;border:0;color:var(--link);cursor:pointer;padding:4px;font-weight:500;text-decoration:underline;text-underline-offset:3px}
 
 .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0}
@@ -184,7 +184,31 @@ dialog::backdrop{background:rgba(10,14,20,.55)}
 .toast.err{background:var(--danger);color:#fff}
 @media (prefers-reduced-motion: reduce){.spin{animation-duration:2.4s}*{transition:none !important}}
 
+.rm-modes{margin:0 0 14px}
+.found{list-style:none;padding:0;margin:12px 0;display:flex;flex-direction:column;gap:8px}
+.found label{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
+.found label:has(input:checked){border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.found input{accent-color:var(--accent);width:18px;height:18px;margin-top:2px;flex:none}
+.found b{color:var(--head);font-weight:700;overflow-wrap:anywhere}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{font-size:.78rem;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted);border:1px solid var(--line)}
+.chip.strong{background:var(--accent);border-color:var(--accent);color:#fff}
+.empty{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin:16px 0}
+.empty b{color:var(--head)}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:14px;background:var(--surface-2);border-radius:14px;padding:14px}
+.ba figure{margin:0;display:flex;flex-direction:column;gap:6px;align-items:center;min-width:0}
+.ba figcaption{font-weight:700;color:var(--head);font-size:.9rem}
+.ba canvas{max-width:100%;height:auto !important;box-shadow:var(--shadow);background:#fff}
+.rmb-wrap{background:var(--surface-2);border-radius:14px;padding:12px;overflow:auto;max-height:78vh;touch-action:none;overscroll-behavior:contain}
+.rmb-wrap.pan{touch-action:auto;cursor:grab}
+.rmb-stage{position:relative;margin:0 auto;width:fit-content;cursor:crosshair}
+.rmb-wrap.pan .rmb-stage{cursor:grab}
+.rmb-stage canvas{display:block;max-width:none;height:auto}
+#rmb-img{box-shadow:var(--shadow);background:#fff}
+#rmb-mask{position:absolute;inset:0;width:100%;height:100%;opacity:.55;pointer-events:none}
+.rmb-cursor{position:absolute;border:2px solid #fff;outline:1.5px solid #0A2240;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);display:none}
 @media (max-width:860px){
+  .ba{grid-template-columns:1fr}
   .app{grid-template-columns:1fr;padding:14px;gap:16px}
   .band-in{padding:16px 14px}
   .brand{gap:14px;font-size:1.15rem}
@@ -377,6 +401,58 @@ dialog::backdrop{background:rgba(10,14,20,.55)}
         <div class="preview" id="wm-preview" hidden></div>
       </div>
     </section>
+    <!-- QUITAR MARCA DE AGUA -->
+    <section class="panel" id="panel-rm">
+      <h2>Quitar marca de agua</h2>
+      <p class="lead">Quitá marcas de agua de PDF, fotos y documentos escaneados. Usalo con archivos propios, de Amigos, o con permiso de su dueño.</p>
+      <div class="seg rm-modes" role="group" aria-label="Forma de quitar la marca">
+        <button class="btn" data-mode="auto" aria-pressed="true">PDF: detectar automáticamente</button>
+        <button class="btn" data-mode="hand" aria-pressed="false">Borrar a mano (fotos y escaneos)</button>
+      </div>
+      <div id="rm-auto">
+        <p class="note">Busca las marcas que el PDF guarda como elementos aparte, como las de Word, Acrobat o esta misma app. El resto del documento queda igual y el texto se puede seguir seleccionando.</p>
+        <div id="rma-dz" style="margin-top:16px"></div>
+        <div id="rma-work" hidden>
+          <div class="filehead" style="margin-top:16px"><span class="fname" id="rma-name"></span><span class="meta" id="rma-meta"></span><span class="grow"></span><button class="linkbtn" id="rma-change">Cambiar archivo</button></div>
+          <div id="rma-found"></div>
+          <div class="bar" id="rma-actions"><button class="btn" id="rma-prev">Ver antes y después</button><button class="btn primary" id="rma-go">Quitar y descargar</button></div>
+          <div class="ba" id="rma-preview" hidden></div>
+        </div>
+      </div>
+      <div id="rm-hand" hidden>
+        <p class="note">Para marcas pegadas en la imagen: fotos, capturas y PDF escaneados. Marcá la marca de agua y la app rellena esa zona con lo que la rodea. Queda mejor con marcas pequeñas o de letras finas sobre fondos parejos.</p>
+        <div id="rmb-dz" style="margin-top:16px"></div>
+        <div id="rmb-work" hidden>
+          <div class="filehead" style="margin-top:16px"><span class="fname" id="rmb-name"></span><span class="meta" id="rmb-meta"></span><span class="grow"></span><button class="linkbtn" id="rmb-change">Cambiar archivo</button></div>
+          <div class="toolbar" role="toolbar" aria-label="Herramientas para marcar">
+            <div class="seg" id="rmb-tools">
+              <button class="btn" data-tool="brush" aria-pressed="true">Pincel</button>
+              <button class="btn" data-tool="wand" aria-pressed="false">Varita</button>
+              <button class="btn" data-tool="erase" aria-pressed="false">Borrador</button>
+              <button class="btn" data-tool="pan" aria-pressed="false">Mover</button>
+            </div>
+            <label class="mini" id="rmb-size-wrap">Grosor <input type="range" id="rmb-size" min="6" max="90" value="26"></label>
+            <span class="mini" id="rmb-tol-wrap" hidden><label class="mini">Tolerancia <input type="range" id="rmb-tol" min="4" max="110" value="40"></label><label class="mini"><input type="checkbox" id="rmb-all"> Toda la imagen</label></span>
+            <span class="grow"></span>
+            <span class="mini"><button class="btn" id="rmb-zout" aria-label="Alejar">−</button><span id="rmb-zoom" style="min-width:4ch;text-align:center">100%</span><button class="btn" id="rmb-zin" aria-label="Acercar">+</button></span>
+          </div>
+          <div class="bar" style="margin:10px 0">
+            <button class="btn" id="rmb-undo" disabled>Deshacer</button>
+            <button class="btn" id="rmb-clear">Limpiar marcado</button>
+            <button class="btn" id="rmb-reset">Volver al original</button>
+            <span class="grow"></span>
+            <button class="btn primary" id="rmb-apply">Quitar lo marcado</button>
+          </div>
+          <p class="hint" id="rmb-hint"></p>
+          <div class="rmb-wrap" id="rmb-wrap"><div class="rmb-stage" id="rmb-stage"><canvas id="rmb-img"></canvas><canvas id="rmb-mask"></canvas><div class="rmb-cursor" id="rmb-cursor"></div></div></div>
+          <div class="bar">
+            <div class="pager" id="rmb-pager"><button class="btn" id="rmb-prev">Anterior</button><span id="rmb-pg"></span><button class="btn" id="rmb-next">Siguiente</button></div>
+            <span class="grow"></span>
+            <button class="btn primary" id="rmb-save">Descargar</button>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -503,7 +579,8 @@ const TOOLS = [
   { id: 'split', t: 'Dividir', d: 'Separá un PDF en varios archivos', i: '<rect x="3" y="4" width="7" height="16" rx="1"/><rect x="14" y="4" width="7" height="16" rx="1"/><path d="M12 2v20" stroke-dasharray="2 2"/>' },
   { id: 'cmp', t: 'Comprimir', d: 'Reducí el tamaño del archivo', i: '<path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>' },
   { id: 'img', t: 'Imágenes a PDF', d: 'Convertí JPG o PNG en un PDF', i: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>' },
-  { id: 'wm', t: 'Marca de agua', d: 'Logo de Amigos, texto y números de página', i: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/>' }
+  { id: 'wm', t: 'Marca de agua', d: 'Logo de Amigos, texto y números de página', i: '<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/>' },
+  { id: 'rm', t: 'Quitar marca de agua', d: 'De PDF, fotos y escaneos', i: '<path d="m7 21-4.3-4.3a1 1 0 0 1 0-1.4l10-10a1 1 0 0 1 1.4 0l5.6 5.6a1 1 0 0 1 0 1.4L11 21"/><path d="M7 21h14"/><path d="m8 10 6 6"/>' }
 ];
 const nav = $('#nav');
 TOOLS.forEach(t => {
@@ -519,6 +596,7 @@ function setTool(id) {
   nav.querySelectorAll('.tool-btn').forEach(b => b.setAttribute('aria-current', b.dataset.id === id ? 'true' : 'false'));
   document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + id));
   if (id === 'edit' && ed.pdf) edRender();
+  if (id === 'rm' && typeof rmb !== 'undefined' && rmb.ready) requestAnimationFrame(rmbFit);
 }
 
 /* ---------- zona de carga ---------- */
@@ -1145,6 +1223,790 @@ $('#sig-ok').onclick = () => {
   sigDlg.close();
   ed.pending = { type: 'img', sig: true, data: o.toDataURL('image/png'), iw: o.width, ih: o.height, w: .26 }; edToolsSync();
 };
+
+/* =========================================================
+   QUITAR MARCA DE AGUA
+   Dos caminos:
+   1) Automático (PDF): lee el contenido de cada página, encuentra los elementos
+      que parecen marca de agua (marcados como tal por Word/Acrobat, en una capa
+      llamada "marca de agua", transparentes, girados o repetidos en todas las
+      páginas) y los vuelve invisibles sin tocar el resto. Es sin pérdida.
+   2) A mano (fotos, capturas, PDF escaneados): se pinta encima de la marca y se
+      rellena con lo que la rodea (inpainting de Telea).
+   ========================================================= */
+const { PDFName, PDFDict, PDFArray, PDFRef, PDFRawStream, decodePDFRawStream } = PDFLib;
+const rmLatin1 = u => { let s = ''; for (let k = 0; k < u.length; k += 8192) s += String.fromCharCode.apply(null, u.subarray(k, k + 8192)); return s; };
+const rmBytes = s => { const u = new Uint8Array(s.length); for (let k = 0; k < s.length; k++) u[k] = s.charCodeAt(k) & 255; return u; };
+const rmHash = s => { let h = 2166136261; for (let k = 0; k < s.length; k++) { h ^= s.charCodeAt(k); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16); };
+const rmEsc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+/* ---------- pestañas ---------- */
+const rmModeBtns = document.querySelectorAll('#panel-rm .rm-modes button');
+function rmMode(m) {
+  rmModeBtns.forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === m ? 'true' : 'false'));
+  $('#rm-auto').hidden = m !== 'auto'; $('#rm-hand').hidden = m !== 'hand';
+  if (m === 'hand' && rmb.ready) requestAnimationFrame(rmbFit);
+}
+rmModeBtns.forEach(b => b.onclick = () => rmMode(b.dataset.mode));
+
+/* ---------- lector del contenido de una página PDF ---------- */
+const RM_WS = new Uint8Array(256); [0, 9, 10, 12, 13, 32].forEach(c => RM_WS[c] = 1);
+const RM_DL = new Uint8Array(256); '()<>[]{}/%'.split('').forEach(c => RM_DL[c.charCodeAt(0)] = 1);
+function rmLex(b) {
+  let i = 0; const n = b.length, ops = []; let args = [];
+  const skip = () => { while (i < n) { const c = b[i]; if (RM_WS[c]) i++; else if (c === 37) { while (i < n && b[i] !== 10 && b[i] !== 13) i++; } else break; } };
+  function val() {
+    skip(); if (i >= n) return null;
+    const s = i, c = b[i];
+    if (c === 40) { // (cadena literal)
+      i++; let depth = 1; const out = [];
+      while (i < n && depth > 0) {
+        const ch = b[i++];
+        if (ch === 92) {
+          const e = b[i++];
+          if (e === 110) out.push(10); else if (e === 114) out.push(13); else if (e === 116) out.push(9);
+          else if (e === 98) out.push(8); else if (e === 102) out.push(12);
+          else if (e >= 48 && e <= 55) { let v = e - 48; for (let k = 0; k < 2 && b[i] >= 48 && b[i] <= 55; k++) v = v * 8 + (b[i++] - 48); out.push(v & 255); }
+          else if (e === 13) { if (b[i] === 10) i++; } else if (e !== 10) out.push(e);
+        } else if (ch === 40) { depth++; out.push(ch); }
+        else if (ch === 41) { depth--; if (depth > 0) out.push(ch); }
+        else out.push(ch);
+      }
+      return { t: 'str', v: Uint8Array.from(out), s, e: i };
+    }
+    if (c === 60) {
+      if (b[i + 1] === 60) { // << diccionario >>
+        i += 2; const d = {};
+        for (;;) {
+          skip(); if (i >= n) break;
+          if (b[i] === 62 && b[i + 1] === 62) { i += 2; break; }
+          const k = val(); if (!k) break;
+          if (k.t !== 'name') continue;
+          d[k.v] = val();
+        }
+        return { t: 'dict', v: d, s, e: i };
+      }
+      i++; let hex = ''; // <hex>
+      while (i < n && b[i] !== 62) { const ch = b[i++]; if (!RM_WS[ch]) hex += String.fromCharCode(ch); }
+      i++; if (hex.length % 2) hex += '0';
+      const out = new Uint8Array(hex.length / 2);
+      for (let k = 0; k < out.length; k++) out[k] = parseInt(hex.substr(k * 2, 2), 16) || 0;
+      return { t: 'str', v: out, s, e: i };
+    }
+    if (c === 91) { // [ arreglo ]
+      i++; const arr = [];
+      for (;;) { skip(); if (i >= n) break; if (b[i] === 93) { i++; break; } const v = val(); if (!v) break; arr.push(v); }
+      return { t: 'arr', v: arr, s, e: i };
+    }
+    if (c === 47) { // /Nombre
+      i++; let nm = '';
+      while (i < n && !RM_WS[b[i]] && !RM_DL[b[i]]) {
+        if (b[i] === 35 && i + 2 < n) { nm += String.fromCharCode(parseInt(String.fromCharCode(b[i + 1], b[i + 2]), 16) || 0); i += 3; }
+        else nm += String.fromCharCode(b[i++]);
+      }
+      return { t: 'name', v: nm, s, e: i };
+    }
+    while (i < n && !RM_WS[b[i]] && !RM_DL[b[i]]) i++;
+    if (i === s) { i++; return { t: 'junk', s, e: i }; }
+    const tok = rmLatin1(b.subarray(s, i));
+    if (/^[+-]?(\d+\.?\d*|\.\d+)$/.test(tok)) return { t: 'num', v: parseFloat(tok), s, e: i };
+    if (tok === 'true' || tok === 'false' || tok === 'null') return { t: 'lit', v: tok, s, e: i };
+    return { t: 'op', v: tok, s, e: i };
+  }
+  for (;;) {
+    const v = val(); if (!v) break;
+    if (v.t !== 'op') { if (v.t !== 'junk') args.push(v); continue; }
+    if (v.v === 'BI') { // imagen en línea: BI ... ID <datos> EI
+      const dict = {};
+      for (;;) { const k = val(); if (!k) break; if (k.t === 'op' && k.v === 'ID') break; const vv = val(); if (k.t === 'name') dict[k.v] = vv; }
+      i++;
+      let j = i;
+      while (j < n - 1) { if (b[j] === 69 && b[j + 1] === 73 && RM_WS[b[j - 1]] && (j + 2 >= n || RM_WS[b[j + 2]] || RM_DL[b[j + 2]])) break; j++; }
+      i = Math.min(n, j + 2);
+      ops.push({ op: 'BI', s: v.s, e: i, args: [], dict }); args = []; continue;
+    }
+    ops.push({ op: v.v, s: args.length ? args[0].s : v.s, e: v.e, args }); args = [];
+  }
+  return ops;
+}
+
+const rmMul = (m, k) => [m[0] * k[0] + m[1] * k[2], m[0] * k[1] + m[1] * k[3], m[2] * k[0] + m[3] * k[2], m[2] * k[1] + m[3] * k[3], m[4] * k[0] + m[5] * k[2] + k[4], m[4] * k[1] + m[5] * k[3] + k[5]];
+const RM_PAINT = new Set(['f', 'F', 'f*', 'B', 'B*', 'b', 'b*', 'S', 's']);
+const RM_PATH = new Set(['m', 'l', 'c', 'v', 'y', 'h', 're']);
+const RM_SHOW = new Set(['Tj', 'TJ', "'", '"']);
+const RM_WMNAME = /water|marca|wm\b|sello|stamp|draft|borrador|confiden|copia|copy|sample|muestra/i;
+
+/* Recorre las operaciones de una página y arma la lista de elementos (textos,
+   imágenes, trazos y secciones marcadas) con las pistas que delatan una marca de agua. */
+function rmAnalyze(ops, ctx) {
+  const items = [];
+  const st = [{ ctm: [1, 0, 0, 1, 0, 0], fa: 1, sa: 1, tr: 0, tf: '', fs: 12 }];
+  const cur = () => st[st.length - 1];
+  const frames = [{ paints: [], sig: '', alpha: 1 }];
+  let tm = [1, 0, 0, 1, 0, 0], tlm = tm.slice(), tl = 0, text = null, pathBuf = '';
+  const marked = []; let wm = null;
+  const push = it => { if (!wm) items.push(it); };
+  const finishFrame = f => { if (f && f.paints.length) push({ kind: 'path', idx: f.paints, sig: 'p:' + rmHash(f.sig), alpha: f.alpha, count: f.paints.length }); };
+  const newText = () => ({ kind: 'text', bytes: [], idx: [], alpha: 1, angle: null, size: 0, font: '' });
+  const show = (o, k) => {
+    if (!text) text = newText();
+    const c = cur(), a = o.args;
+    let parts = [];
+    if (o.op === 'TJ') { if (a[0] && a[0].t === 'arr') parts = a[0].v.filter(x => x.t === 'str').map(x => x.v); }
+    else { const s = o.op === '"' ? a[2] : a[0]; if (s && s.t === 'str') parts = [s.v]; }
+    parts.forEach(p => { for (const x of p) text.bytes.push(x); });
+    text.idx.push(k);
+    text.alpha = Math.min(text.alpha, c.tr === 1 || c.tr === 5 ? c.sa : c.fa);
+    if (text.angle === null) {
+      const M = rmMul(tm, c.ctm);
+      text.angle = Math.atan2(M[1], M[0]) * 180 / Math.PI;
+      text.size = Math.abs(c.fs) * Math.hypot(M[2], M[3]);
+      text.font = c.tf;
+    }
+  };
+  for (let k = 0; k < ops.length; k++) {
+    const o = ops[k], a = o.args, nums = a.map(x => x.v);
+    o.tr = cur().tr;
+    switch (o.op) {
+      case 'q': st.push({ ...cur(), ctm: cur().ctm.slice() }); frames.push({ paints: [], sig: '', alpha: 1 }); break;
+      case 'Q': if (st.length > 1) st.pop(); if (frames.length > 1) finishFrame(frames.pop()); break;
+      case 'cm': if (a.length >= 6) cur().ctm = rmMul(nums.slice(0, 6), cur().ctm); break;
+      case 'gs': if (a[0] && a[0].t === 'name') { const al = ctx.alpha(a[0].v); if (al.fa != null) cur().fa = al.fa; if (al.sa != null) cur().sa = al.sa; } break;
+      case 'Tr': if (a[0]) cur().tr = a[0].v; break;
+      case 'Tf': if (a.length >= 2) { cur().tf = a[0].v; cur().fs = a[1].v; } break;
+      case 'TL': tl = a[0] ? a[0].v : 0; break;
+      case 'BT': tm = [1, 0, 0, 1, 0, 0]; tlm = tm.slice(); text = newText(); break;
+      case 'ET': if (text && text.idx.length) push(text); text = null; break;
+      case 'Tm': if (a.length >= 6) { tm = nums.slice(0, 6); tlm = tm.slice(); } break;
+      case 'Td': if (a.length >= 2) { tlm = rmMul([1, 0, 0, 1, nums[0], nums[1]], tlm); tm = tlm.slice(); } break;
+      case 'TD': if (a.length >= 2) { tl = -nums[1]; tlm = rmMul([1, 0, 0, 1, nums[0], nums[1]], tlm); tm = tlm.slice(); } break;
+      case 'T*': tlm = rmMul([1, 0, 0, 1, 0, -tl], tlm); tm = tlm.slice(); break;
+      case "'": case '"': tlm = rmMul([1, 0, 0, 1, 0, -tl], tlm); tm = tlm.slice(); show(o, k); break;
+      case 'Tj': case 'TJ': show(o, k); break;
+      case 'Do': if (a[0] && a[0].t === 'name') { const c = cur(); push({ kind: 'xobj', name: a[0].v, idx: [k], alpha: c.fa, angle: Math.atan2(c.ctm[1], c.ctm[0]) * 180 / Math.PI }); } break;
+      case 'BI': { const d = o.dict, W = d.W || d.Width, H = d.H || d.Height; push({ kind: 'inline', idx: [k], sig: 'i:' + (W ? W.v : 0) + 'x' + (H ? H.v : 0) + ':' + (o.e - o.s), w: W ? W.v : 0, h: H ? H.v : 0, alpha: cur().fa, angle: 0 }); break; }
+      case 'BDC': case 'BMC': {
+        const tag = a[0] && a[0].t === 'name' ? a[0].v : '';
+        const w = o.op === 'BDC' ? ctx.markedWm(tag, a[1]) : null;
+        marked.push(k);
+        if (w && !wm) wm = { start: k, depth: marked.length, w };
+        break;
+      }
+      case 'EMC':
+        marked.pop();
+        if (wm && marked.length < wm.depth) {
+          const idx = []; for (let j = wm.start; j <= k; j++) idx.push(j);
+          const it = { kind: 'marked', idx, sig: 'm:' + wm.w.sig, label: wm.w.label, why: wm.w.why, alpha: 1 };
+          wm = null; items.push(it);
+        }
+        break;
+      default:
+        if (RM_PATH.has(o.op)) pathBuf += o.op + nums.map(x => typeof x === 'number' ? Math.round(x * 10) / 10 : '').join(',') + ';';
+        else if (o.op === 'n') pathBuf = '';
+        else if (RM_PAINT.has(o.op) || o.op === 'sh') {
+          const f = frames[frames.length - 1], c = cur();
+          f.paints.push(k); f.sig += pathBuf + o.op + '|'; pathBuf = '';
+          f.alpha = Math.min(f.alpha, /^[Ss]$/.test(o.op) ? c.sa : c.fa);
+        }
+    }
+  }
+  if (wm) { const idx = []; for (let j = wm.start; j < ops.length; j++) idx.push(j); items.push({ kind: 'marked', idx, sig: 'm:' + wm.w.sig, label: wm.w.label, why: wm.w.why, alpha: 1 }); wm = null; }
+  while (frames.length) finishFrame(frames.pop());
+  return items;
+}
+
+/* Datos de los recursos de la página (transparencias, imágenes, capas) */
+function rmPageCtx(doc, page) {
+  const L = v => { try { return doc.context.lookup(v); } catch { return undefined; } };
+  const get = (d, k) => { try { return d instanceof PDFDict ? L(d.get(PDFName.of(k))) : undefined; } catch { return undefined; } };
+  const numOf = v => v && typeof v.asNumber === 'function' ? v.asNumber() : null;
+  const textOf = v => { try { return v instanceof PDFName ? v.toString() : v && typeof v.decodeText === 'function' ? v.decodeText() : ''; } catch { return ''; } };
+  let res; try { res = page.node.Resources(); } catch { res = undefined; }
+  const ext = get(res, 'ExtGState'), xo = get(res, 'XObject'), props = get(res, 'Properties');
+  const ocgNames = d => {
+    if (!(d instanceof PDFDict)) return [];
+    const nm = textOf(get(d, 'Name')); const out = nm ? [nm] : [];
+    const list = get(d, 'OCGs');
+    if (list instanceof PDFArray) for (let k = 0; k < list.size(); k++) out.push(...ocgNames(L(list.get(k))));
+    else if (list instanceof PDFDict) out.push(...ocgNames(list));
+    return out;
+  };
+  return {
+    alpha(name) { const g = get(ext, name); return { fa: numOf(get(g, 'ca')), sa: numOf(get(g, 'CA')) }; },
+    xobj(name) {
+      let ref; try { ref = xo instanceof PDFDict ? xo.get(PDFName.of(name)) : undefined; } catch { ref = undefined; }
+      const s = L(ref); const d = s && s.dict;
+      const sub = d ? get(d, 'Subtype') : null;
+      const image = sub === PDFName.of('Image');
+      const w = image ? numOf(get(d, 'Width')) : null, h = image ? numOf(get(d, 'Height')) : null;
+      let wmName = '';
+      if (d) { const oc = get(d, 'OC'); const nm = ocgNames(oc).find(x => RM_WMNAME.test(x)); if (nm) wmName = nm; }
+      const sig = ref instanceof PDFRef ? 'x:' + ref.toString() : 'x:' + name + ':' + w + 'x' + h;
+      return { sig, image, w, h, wmName };
+    },
+    markedWm(tag, prop) {
+      let d = null, pd = null;
+      if (prop && prop.t === 'dict') d = prop.v;
+      else if (prop && prop.t === 'name') pd = get(props, prop.v);
+      if (tag === 'Artifact') {
+        const subtype = d ? (d.Subtype && d.Subtype.v) : (pd ? textOf(get(pd, 'Subtype')) : '');
+        if (/Watermark/i.test(subtype || '')) return { sig: 'artifact', label: 'Marca de agua de Word, Acrobat u otro programa', why: 'El PDF la guarda como marca de agua' };
+      }
+      if (tag === 'OC' && pd) {
+        const nm = ocgNames(pd).find(x => RM_WMNAME.test(x));
+        if (nm) return { sig: 'layer:' + nm, label: 'Capa «' + nm + '»', why: 'Está en una capa de marca de agua' };
+      }
+      return null;
+    }
+  };
+}
+
+function rmStreams(doc, page) {
+  const L = v => doc.context.lookup(v);
+  const c = page.node.get(PDFName.of('Contents'));
+  const refs = [], streams = [];
+  if (!c) return { refs, streams };
+  const look = L(c);
+  if (look instanceof PDFArray) { for (let k = 0; k < look.size(); k++) { const r = look.get(k); refs.push(r); streams.push(L(r)); } }
+  else { refs.push(c); streams.push(look); }
+  return { refs, streams };
+}
+function rmStreamBytes(s) {
+  if (s instanceof PDFRawStream) return decodePDFRawStream(s).decode();
+  if (s && typeof s.getUnencodedContents === 'function') return s.getUnencodedContents();
+  if (s && typeof s.getContents === 'function') return s.getContents();
+  throw new Error('stream');
+}
+function rmTextLabel(bytes) {
+  let ok = 0, s = '';
+  for (const x of bytes) { if ((x >= 32 && x < 127) || x >= 160) { ok++; s += String.fromCharCode(x); } }
+  if (!bytes.length) return '';
+  return ok / bytes.length >= 0.85 ? s.replace(/\s+/g, ' ').trim() : '';
+}
+
+/* Analiza todo el documento y agrupa lo que se repite entre páginas */
+async function rmScan(bytes) {
+  const doc = await openLib(bytes);
+  const pages = doc.getPages(), N = pages.length, data = [], groups = new Map();
+  const add = (sig, p, inst, base) => {
+    if (!groups.has(sig)) groups.set(sig, { sig, pages: new Set(), inst: [], alpha: 1, rotated: false, big: false, ...base });
+    const g = groups.get(sig); g.pages.add(p); g.inst.push(inst);
+    if (inst.alpha != null) g.alpha = Math.min(g.alpha, inst.alpha);
+    return g;
+  };
+  for (let p = 0; p < N; p++) {
+    if (p % 10 === 0) { busyMsg(`Revisando página ${p + 1} de ${N}…`); await tick(); }
+    const page = pages[p], entry = { ops: null, bytes: null };
+    data.push(entry);
+    try {
+      const { streams } = rmStreams(doc, page);
+      const parts = streams.map(rmStreamBytes);
+      const total = parts.reduce((t, u) => t + u.length + 1, 0), buf = new Uint8Array(total);
+      let pos = 0; parts.forEach(u => { buf.set(u, pos); pos += u.length; buf[pos++] = 10; });
+      const ctx = rmPageCtx(doc, page), ops = rmLex(buf);
+      entry.ops = ops; entry.bytes = buf;
+      for (const it of rmAnalyze(ops, ctx)) {
+        const inst = { p, idx: it.idx, alpha: it.alpha };
+        const rot = it.angle != null && (() => { const m = ((Math.abs(it.angle) % 90) + 90) % 90; return m > 10 && m < 80; })();
+        if (it.kind === 'marked') add(it.sig, p, inst, { kind: 'marked', label: it.label, why: it.why, strongMark: true });
+        else if (it.kind === 'text') {
+          const txt = rmTextLabel(it.bytes);
+          if (!txt && !it.bytes.length) continue;
+          const sig = 't:' + rmHash(rmLatin1(Uint8Array.from(it.bytes))) + ':' + Math.round(it.size);
+          const g = add(sig, p, inst, { kind: 'text', label: txt ? 'Texto «' + (txt.length > 60 ? txt.slice(0, 57) + '…' : txt) + '»' : 'Texto (no se puede leer cuál)' });
+          if (rot) g.rotated = true; if (it.size >= 36) g.big = true;
+        } else if (it.kind === 'xobj') {
+          const x = ctx.xobj(it.name);
+          const g = add(x.sig, p, inst, { kind: 'xobj', label: x.image ? `Imagen de ${x.w}×${x.h} píxeles` : 'Elemento gráfico (logo, sello o dibujo)', image: x.image });
+          if (rot) g.rotated = true;
+          if (x.wmName) { g.strongMark = true; g.why = 'Está en una capa de marca de agua'; }
+        } else if (it.kind === 'inline') {
+          add(it.sig, p, inst, { kind: 'inline', label: `Imagen pequeña de ${it.w}×${it.h} píxeles` });
+        } else if (it.kind === 'path') {
+          add(it.sig, p, inst, { kind: 'path', label: 'Dibujo o letras convertidas en trazos' });
+        }
+      }
+    } catch (e) { entry.ops = null; }
+    try {
+      const annots = page.node.Annots();
+      if (annots) for (let k = 0; k < annots.size(); k++) {
+        const a = doc.context.lookup(annots.get(k));
+        if (!(a instanceof PDFDict)) continue;
+        const st = a.get(PDFName.of('Subtype'));
+        if (st === PDFName.of('Watermark')) add('annot:wm', p, { p, annot: k, alpha: null }, { kind: 'annot', label: 'Marca de agua agregada como anotación', why: 'El PDF la guarda como marca de agua', strongMark: true });
+        else if (st === PDFName.of('Stamp')) add('annot:stamp', p, { p, annot: k, alpha: null }, { kind: 'annot', label: 'Sello agregado como anotación' });
+      }
+    } catch { /* sin anotaciones */ }
+  }
+  // decidir qué mostrar y qué dejar marcado
+  const out = [];
+  for (const g of groups.values()) {
+    const n = g.pages.size, rep = N > 1 && n >= Math.max(2, Math.ceil(N * 0.6));
+    const trans = g.alpha < 0.98;
+    g.repeated = rep; g.transparent = trans;
+    let show = false, strong = false;
+    if (g.strongMark) { show = strong = true; }
+    else if (g.kind === 'annot') { show = true; }
+    else if (g.kind === 'path') { show = trans; strong = trans && (rep || N === 1); }
+    else if (g.kind === 'text') { show = trans || g.rotated || (rep && g.big); strong = (trans && (rep || g.rotated || g.big || N === 1)) || (g.rotated && (rep || g.big)); }
+    else if (g.kind === 'xobj' || g.kind === 'inline') { show = trans || g.rotated || rep; strong = trans && (rep || N === 1); }
+    if (!show) continue;
+    g.strong = strong;
+    g.score = (strong ? 100 : 0) + (trans ? 20 : 0) + (g.rotated ? 15 : 0) + (rep ? 10 : 0) + (g.big ? 5 : 0) + n / Math.max(1, N);
+    out.push(g);
+  }
+  out.sort((a, b) => b.score - a.score);
+  return { N, data, groups: out.slice(0, 15) };
+}
+
+/* Vuelve invisibles los elementos elegidos y arma el PDF nuevo */
+async function rmBuild(bytes, scan, chosen) {
+  const doc = await openLib(bytes);
+  const pages = doc.getPages();
+  const perPage = new Map(), annotsDel = new Map();
+  for (const g of chosen) for (const inst of g.inst) {
+    if (inst.annot != null) { if (!annotsDel.has(inst.p)) annotsDel.set(inst.p, new Set()); annotsDel.get(inst.p).add(inst.annot); continue; }
+    if (!perPage.has(inst.p)) perPage.set(inst.p, new Set());
+    inst.idx.forEach(k => perPage.get(inst.p).add(k));
+  }
+  // cuántas páginas usan cada flujo de contenido (para borrar los que quedan huérfanos)
+  const useCount = new Map();
+  pages.forEach(pg => { try { rmStreams(doc, pg).refs.forEach(r => { if (r instanceof PDFRef) useCount.set(r.toString(), (useCount.get(r.toString()) || 0) + 1); }); } catch { } });
+  for (const [p, set] of perPage) {
+    const entry = scan.data[p]; if (!entry || !entry.ops) continue;
+    const { ops, bytes: buf } = entry, edits = [];
+    for (const k of [...set].sort((a, b) => a - b)) {
+      const o = ops[k]; if (!o) continue;
+      if (RM_SHOW.has(o.op)) {
+        // se borra el texto (no solo se oculta); ' y " también cambian de renglón y espaciado, así que eso se conserva
+        const a = o.args.map(x => x.t === 'num' ? x.v : 0);
+        edits.push({ s: o.s, e: o.e, r: o.op === "'" ? 'T*' : o.op === '"' ? `${a[0]} Tw ${a[1]} Tc T*` : '' });
+      } else if (o.op === 'Do' || o.op === 'BI' || o.op === 'sh') edits.push({ s: o.s, e: o.e, r: '' });
+      else if (RM_PAINT.has(o.op)) edits.push({ s: o.s, e: o.e, r: 'n' });
+    }
+    if (!edits.length) continue;
+    const parts = []; let pos = 0, size = 0;
+    for (const ed of edits) {
+      if (ed.s < pos) continue;
+      const a = buf.subarray(pos, ed.s), b = rmBytes(' ' + ed.r + ' ');
+      parts.push(a, b); size += a.length + b.length; pos = ed.e;
+    }
+    const tail = buf.subarray(pos); parts.push(tail); size += tail.length;
+    const merged = new Uint8Array(size); let q = 0; parts.forEach(u => { merged.set(u, q); q += u.length; });
+    const page = pages[p], old = rmStreams(doc, page).refs;
+    page.node.set(PDFName.of('Contents'), doc.context.register(doc.context.flateStream(merged)));
+    old.forEach(r => { if (r instanceof PDFRef && useCount.get(r.toString()) === 1) { try { doc.context.delete(r); } catch { } } });
+  }
+  for (const [p, set] of annotsDel) {
+    const page = pages[p], arr = page.node.Annots(); if (!arr) continue;
+    const keep = doc.context.obj([]);
+    for (let k = 0; k < arr.size(); k++) if (!set.has(k)) keep.push(arr.get(k));
+    page.node.set(PDFName.of('Annots'), keep);
+  }
+  return doc.save();
+}
+
+/* ---------- interfaz del modo automático ---------- */
+const rma = {};
+singleFile('rma', async f => {
+  Object.assign(rma, f);
+  busyMsg('Buscando marcas de agua…'); await tick();
+  rma.scan = await rmScan(f.bytes);
+  $('#rma-preview').hidden = true;
+  rmaRender();
+});
+function rmaRender() {
+  const box = $('#rma-found'), gs = rma.scan.groups, N = rma.scan.N;
+  $('#rma-actions').hidden = !gs.length;
+  if (!gs.length) {
+    box.innerHTML = `<div class="empty"><b>No encontré marcas de agua como elementos aparte.</b><p style="margin:6px 0 12px">Seguramente la marca está pegada en la imagen de la página, como pasa en los PDF escaneados o hechos a partir de fotos. Para esos casos usá <b>Borrar a mano</b>.</p><button class="btn primary" id="rma-to-hand">Abrir este PDF en Borrar a mano</button></div>`;
+    $('#rma-to-hand').onclick = () => { rmMode('hand'); rmbOpen(new File([rma.bytes], rma.name, { type: 'application/pdf' })); };
+    return;
+  }
+  box.innerHTML = `<p class="hint" style="margin:14px 2px 0">Encontré ${plural(gs.length, 'elemento', 'elementos')} que podrían ser marca de agua. Ya dejé marcados los más probables; revisá la vista previa antes de descargar.</p><ul class="found"></ul>`;
+  const ul = box.querySelector('ul');
+  gs.forEach((g, i) => {
+    const chips = [];
+    if (g.why) chips.push([g.why, true]);
+    if (g.transparent) chips.push(['Transparente', true]);
+    if (g.rotated) chips.push(['En diagonal', true]);
+    if (g.big) chips.push(['Letra grande', false]);
+    const n = g.pages.size;
+    chips.push([N === 1 ? 'En la página' : n === N ? 'En todas las páginas' : `En ${n} de ${N} páginas`, g.repeated]);
+    const li = document.createElement('li');
+    li.innerHTML = `<label><input type="checkbox" data-i="${i}" ${g.strong ? 'checked' : ''}><span><b>${rmEsc(g.label)}</b><span class="chips">${chips.map(([t, s]) => `<span class="chip${s ? ' strong' : ''}">${rmEsc(t)}</span>`).join('')}</span></span></label>`;
+    ul.appendChild(li);
+  });
+  ul.addEventListener('change', () => { $('#rma-preview').hidden = true; rmaSync(); });
+  rmaSync();
+}
+const rmaChosen = () => [...document.querySelectorAll('#rma-found input:checked')].map(x => rma.scan.groups[+x.dataset.i]);
+function rmaSync() { const n = rmaChosen().length; $('#rma-go').disabled = $('#rma-prev').disabled = !n; $('#rma-go').textContent = n ? 'Quitar y descargar' : 'Elegí qué quitar'; }
+$('#rma-prev').onclick = async () => {
+  const chosen = rmaChosen(); if (!chosen.length) return;
+  busy(true, 'Preparando vista previa…');
+  let a, b;
+  try {
+    const out = await rmBuild(rma.bytes, rma.scan, chosen);
+    const pageNo = Math.min(...chosen.map(g => Math.min(...g.pages))) + 1;
+    a = await openPdfjs(rma.bytes); b = await openPdfjs(out);
+    const box = $('#rma-preview'); box.innerHTML = ''; box.hidden = false;
+    const w = Math.min(420, Math.max(220, (box.clientWidth - 60) / 2));
+    for (const [pdf, cap] of [[a, 'Antes'], [b, 'Después']]) {
+      const fig = document.createElement('figure');
+      fig.innerHTML = `<figcaption>${cap} · página ${pageNo}</figcaption>`;
+      fig.appendChild(await renderPage(pdf, pageNo, w));
+      box.appendChild(fig);
+    }
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (e) { toast('No se pudo generar la vista previa: ' + e.message, 'err'); }
+  finally { busy(false); a && a.destroy(); b && b.destroy(); }
+};
+$('#rma-go').onclick = async () => {
+  const chosen = rmaChosen(); if (!chosen.length) return;
+  busy(true, 'Quitando marcas de agua…');
+  try { const out = await rmBuild(rma.bytes, rma.scan, chosen); busy(false); await saveFile(out, baseName(rma.name) + '-sin-marca.pdf'); }
+  catch (e) { busy(false); toast('No se pudo quitar: ' + e.message, 'err'); }
+};
+
+/* =========================================================
+   BORRAR A MANO (inpainting)
+   ========================================================= */
+class RmHeap {
+  constructor() { this.i = []; this.k = []; }
+  get size() { return this.i.length; }
+  push(idx, key) {
+    const I = this.i, K = this.k; let n = I.length; I.push(idx); K.push(key);
+    while (n > 0) { const p = (n - 1) >> 1; if (K[p] <= key) break; I[n] = I[p]; K[n] = K[p]; n = p; }
+    I[n] = idx; K[n] = key;
+  }
+  pop() {
+    const I = this.i, K = this.k, top = I[0], li = I.pop(), lk = K.pop(), len = I.length;
+    if (len) {
+      let n = 0;
+      for (;;) { let c = 2 * n + 1; if (c >= len) break; if (c + 1 < len && K[c + 1] < K[c]) c++; if (K[c] >= lk) break; I[n] = I[c]; K[n] = K[c]; n = c; }
+      I[n] = li; K[n] = lk;
+    }
+    return top;
+  }
+}
+/* Rellena los píxeles marcados avanzando desde el borde hacia adentro (método de Telea) */
+function rmInpaint(px, w, h, mask, R) {
+  const N = w * h, KNOWN = 0, BAND = 1, INSIDE = 2, INF = 1e6;
+  const f = new Uint8Array(N), T = new Float32Array(N), heap = new RmHeap();
+  for (let i = 0; i < N; i++) if (mask[i]) { f[i] = INSIDE; T[i] = INF; }
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = y * w + x; if (f[i] === INSIDE) continue;
+    if ((x > 0 && f[i - 1] === INSIDE) || (x < w - 1 && f[i + 1] === INSIDE) || (y > 0 && f[i - w] === INSIDE) || (y < h - 1 && f[i + w] === INSIDE)) { f[i] = BAND; heap.push(i, 0); }
+  }
+  const known = i => i >= 0 && f[i] !== INSIDE;
+  const solve = (i1, i2) => {
+    const k1 = known(i1), k2 = known(i2);
+    if (k1 && k2) {
+      const t1 = T[i1], t2 = T[i2], d = 2 - (t1 - t2) * (t1 - t2);
+      if (d > 0) { const r = Math.sqrt(d); let s = (t1 + t2 - r) / 2; if (s >= t1 && s >= t2) return s; s += r; if (s >= t1 && s >= t2) return s; }
+      return Math.min(t1, t2) + 1;
+    }
+    if (k1) return T[i1] + 1; if (k2) return T[i2] + 1; return INF;
+  };
+  const R2 = R * R;
+  const fill = n => {
+    const nx = n % w, ny = (n / w) | 0;
+    const tl = nx > 0 && known(n - 1) ? T[n - 1] : null, tr = nx < w - 1 && known(n + 1) ? T[n + 1] : null;
+    const tu = ny > 0 && known(n - w) ? T[n - w] : null, td = ny < h - 1 && known(n + w) ? T[n + w] : null;
+    const gx = tl != null && tr != null ? (tr - tl) / 2 : tr != null ? tr - T[n] : tl != null ? T[n] - tl : 0;
+    const gy = tu != null && td != null ? (td - tu) / 2 : td != null ? td - T[n] : tu != null ? T[n] - tu : 0;
+    let sw = 0, s0 = 0, s1 = 0, s2 = 0, s3 = 0;
+    const y0 = Math.max(0, ny - R), y1 = Math.min(h - 1, ny + R), x0 = Math.max(0, nx - R), x1 = Math.min(w - 1, nx + R);
+    for (let qy = y0; qy <= y1; qy++) {
+      const ry = ny - qy;
+      for (let qx = x0; qx <= x1; qx++) {
+        const rx = nx - qx, l2 = rx * rx + ry * ry;
+        if (!l2 || l2 > R2) continue;
+        const q = qy * w + qx; if (f[q] === INSIDE) continue;
+        let dir = Math.abs(rx * gx + ry * gy) / Math.sqrt(l2); if (dir < 1e-6) dir = 1e-6;
+        const wg = dir / l2 / (1 + Math.abs(T[q] - T[n])), o = q * 4;
+        sw += wg; s0 += wg * px[o]; s1 += wg * px[o + 1]; s2 += wg * px[o + 2]; s3 += wg * px[o + 3];
+      }
+    }
+    if (sw > 0) { const o = n * 4; px[o] = s0 / sw; px[o + 1] = s1 / sw; px[o + 2] = s2 / sw; px[o + 3] = s3 / sw; }
+  };
+  while (heap.size) {
+    const p = heap.pop(); if (f[p] === KNOWN) continue;
+    f[p] = KNOWN;
+    const x = p % w, y = (p / w) | 0;
+    const nb = [x > 0 ? p - 1 : -1, x < w - 1 ? p + 1 : -1, y > 0 ? p - w : -1, y < h - 1 ? p + w : -1];
+    for (const n of nb) {
+      if (n < 0 || f[n] !== INSIDE) continue;
+      const cx = n % w, cy = (n / w) | 0;
+      const L = cx > 0 ? n - 1 : -1, Rr = cx < w - 1 ? n + 1 : -1, U = cy > 0 ? n - w : -1, D = cy < h - 1 ? n + w : -1;
+      T[n] = Math.min(solve(U, L), solve(U, Rr), solve(D, L), solve(D, Rr));
+      fill(n); f[n] = BAND; heap.push(n, T[n]);
+    }
+  }
+}
+function rmDilate(m, w, h, r) {
+  const a = new Uint8Array(m.length), b = new Uint8Array(m.length);
+  for (let y = 0; y < h; y++) { let last = -1e9; const row = y * w; for (let x = 0; x < w; x++) { if (m[row + x]) last = x; if (x - last <= r) a[row + x] = 1; } last = 1e9; for (let x = w - 1; x >= 0; x--) { if (m[row + x]) last = x; if (last - x <= r) a[row + x] = 1; } }
+  for (let x = 0; x < w; x++) { let last = -1e9; for (let y = 0; y < h; y++) { if (a[y * w + x]) last = y; if (y - last <= r) b[y * w + x] = 1; } last = 1e9; for (let y = h - 1; y >= 0; y--) { if (a[y * w + x]) last = y; if (last - y <= r) b[y * w + x] = 1; } }
+  return b;
+}
+
+const rmb = { ready: false, tool: 'brush', zoom: 1, undo: [], edited: new Map(), dirty: false };
+const rmbImg = $('#rmb-img'), rmbMask = $('#rmb-mask');
+const rmbI = rmbImg.getContext('2d', { willReadFrequently: true }), rmbM = rmbMask.getContext('2d', { willReadFrequently: true });
+const RMB_COLOR = '#FF006E';
+const RMB_HINTS = {
+  brush: 'Pintá encima de la marca de agua y después tocá «Quitar lo marcado». Mientras más justo pintes, mejor queda.',
+  wand: 'Tocá una letra de la marca: se seleccionan los píxeles de color parecido. Si agarra de más o de menos, ajustá la tolerancia.',
+  erase: 'Borrá las partes de la selección que no son marca de agua.',
+  pan: 'Arrastrá para moverte por la imagen ampliada.'
+};
+dropzone($('#rmb-dz'), { accept: 'application/pdf,.pdf,image/*', multiple: false, label: 'Elegí una foto o un PDF', hint: 'JPG, PNG, WEBP o PDF escaneado' }, openers.rmb = ([f]) => rmbOpen(f));
+async function rmbRenderPdfPage(n) {
+  const page = await rmb.pdf.getPage(n);
+  const vp1 = page.getViewport({ scale: 1 });
+  const scale = Math.min(3, 2400 / Math.max(vp1.width, vp1.height));
+  const vp = page.getViewport({ scale });
+  const c = document.createElement('canvas'); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+  const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+  await page.render({ canvasContext: ctx, viewport: vp }).promise;
+  return { canvas: c, w: vp1.width, h: vp1.height };
+}
+function rmbSetCanvas(src) {
+  rmbImg.width = rmbMask.width = src.width; rmbImg.height = rmbMask.height = src.height;
+  rmbI.drawImage(src, 0, 0); rmbM.clearRect(0, 0, src.width, src.height);
+  rmb.undo = []; rmb.dirty = false; rmbSync(); rmbFit();
+}
+const rmbClone = c => { const o = document.createElement('canvas'); o.width = c.width; o.height = c.height; o.getContext('2d').drawImage(c, 0, 0); return o; };
+async function rmbOpen(f) {
+  busy(true, 'Abriendo ' + f.name + '…');
+  try {
+    if (rmb.pdf) { rmb.pdf.destroy(); rmb.pdf = null; }
+    rmb.edited = new Map(); rmb.name = f.name;
+    if (isPdf(f)) {
+      const bytes = await readBuf(f); await openLib(bytes);
+      rmb.kind = 'pdf'; rmb.bytes = bytes; rmb.pdf = await openPdfjs(bytes); rmb.count = rmb.pdf.numPages; rmb.page = 1;
+      const r = await rmbRenderPdfPage(1); rmb.orig = r.canvas; rmb.pw = r.w; rmb.ph = r.h;
+      $('#rmb-meta').textContent = plural(rmb.count, 'página', 'páginas') + ' · ' + fmtSize(f.size);
+    } else {
+      let img;
+      try { img = await loadImg(await readDataURL(f)); } catch { throw new Error('No se pudo leer esa imagen. Usá JPG, PNG o WEBP.'); }
+      const s = Math.min(1, 3200 / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      rmb.kind = 'image'; rmb.png = /png/i.test(f.type) || /\.png$/i.test(f.name); rmb.orig = c;
+      $('#rmb-meta').textContent = `${img.naturalWidth}×${img.naturalHeight} px · ${fmtSize(f.size)}`;
+    }
+    $('#rmb-name').textContent = f.name;
+    $('#rmb-dz').hidden = true; $('#rmb-work').hidden = false; rmb.ready = true;
+    await new Promise(r => requestAnimationFrame(r));
+    rmbSetCanvas(rmb.orig);
+  } catch (e) { toast(e.message || 'No se pudo abrir el archivo', 'err'); }
+  finally { busy(false); }
+}
+$('#rmb-change').onclick = () => { $('#rmb-work').hidden = true; $('#rmb-dz').hidden = false; rmb.ready = false; };
+function rmbFit() {
+  if (!rmb.ready || !rmbImg.width) return;
+  const wrap = $('#rmb-wrap'), avail = Math.max(200, wrap.clientWidth - 24);
+  const base = Math.min(avail, rmbImg.width);
+  rmbImg.style.width = Math.round(base * rmb.zoom) + 'px';
+  $('#rmb-zoom').textContent = Math.round(rmb.zoom * 100) + '%';
+}
+function rmbSync() {
+  const pdf = rmb.kind === 'pdf';
+  $('#rmb-pager').hidden = !pdf;
+  if (pdf) {
+    $('#rmb-pg').textContent = `${rmb.page} de ${rmb.count}`;
+    $('#rmb-prev').disabled = rmb.page <= 1; $('#rmb-next').disabled = rmb.page >= rmb.count;
+    const n = rmb.edited.size + (rmb.dirty && !rmb.edited.has(rmb.page) ? 1 : 0);
+    $('#rmb-save').textContent = n ? `Descargar PDF (${plural(n, 'página arreglada', 'páginas arregladas')})` : 'Descargar PDF';
+  } else $('#rmb-save').textContent = 'Descargar imagen';
+  $('#rmb-undo').disabled = !rmb.undo.length;
+  $('#rmb-tol-wrap').hidden = rmb.tool !== 'wand';
+  $('#rmb-size-wrap').hidden = rmb.tool === 'wand' || rmb.tool === 'pan';
+  document.querySelectorAll('#rmb-tools button').forEach(b => b.setAttribute('aria-pressed', b.dataset.tool === rmb.tool ? 'true' : 'false'));
+  $('#rmb-hint').textContent = RMB_HINTS[rmb.tool];
+  $('#rmb-wrap').classList.toggle('pan', rmb.tool === 'pan');
+}
+$('#rmb-tools').onclick = e => { const b = e.target.closest('button'); if (!b) return; rmb.tool = b.dataset.tool; rmbSync(); };
+const rmbMaskAlpha = () => { const d = rmbM.getImageData(0, 0, rmbMask.width, rmbMask.height).data, m = new Uint8Array(d.length / 4); for (let k = 0; k < m.length; k++) m[k] = d[k * 4 + 3] > 20 ? 1 : 0; return m; };
+function rmbPutMask(m) {
+  const id = rmbM.createImageData(rmbMask.width, rmbMask.height), d = id.data;
+  for (let k = 0; k < m.length; k++) if (m[k]) { const o = k * 4; d[o] = 255; d[o + 1] = 0; d[o + 2] = 110; d[o + 3] = 255; }
+  rmbM.putImageData(id, 0, 0);
+}
+function rmbPushUndo(entry) { rmb.undo.push(entry); if (rmb.undo.length > 10) rmb.undo.shift(); $('#rmb-undo').disabled = false; }
+$('#rmb-undo').onclick = () => {
+  const u = rmb.undo.pop(); if (!u) return;
+  if (u.img) { rmbI.putImageData(u.img, 0, 0); rmb.dirty = u.dirty; }
+  rmbPutMask(u.m); rmbSync();
+};
+$('#rmb-clear').onclick = () => { rmbPushUndo({ m: rmbMaskAlpha() }); rmbM.clearRect(0, 0, rmbMask.width, rmbMask.height); rmbSync(); };
+$('#rmb-reset').onclick = () => {
+  if (rmb.kind === 'pdf') rmb.edited.delete(rmb.page);
+  rmbSetCanvas(rmb.orig);
+  toast(rmb.kind === 'pdf' ? 'La página volvió a como estaba' : 'La imagen volvió a como estaba');
+};
+$('#rmb-zin').onclick = () => { rmb.zoom = Math.min(6, rmb.zoom * 1.5); rmbFit(); };
+$('#rmb-zout').onclick = () => { rmb.zoom = Math.max(1, rmb.zoom / 1.5); rmbFit(); };
+
+/* pintar */
+const rmbPt = e => { const r = rmbImg.getBoundingClientRect(); return [(e.clientX - r.left) * rmbImg.width / r.width, (e.clientY - r.top) * rmbImg.height / r.height]; };
+const rmbRadius = () => (+$('#rmb-size').value / 2) * rmbImg.width / rmbImg.getBoundingClientRect().width;
+const rmbCursor = $('#rmb-cursor');
+function rmbMoveCursor(e) {
+  if (rmb.tool !== 'brush' && rmb.tool !== 'erase') { rmbCursor.style.display = 'none'; return; }
+  const r = $('#rmb-stage').getBoundingClientRect(), s = +$('#rmb-size').value;
+  rmbCursor.style.display = 'block'; rmbCursor.style.width = rmbCursor.style.height = s + 'px';
+  rmbCursor.style.left = (e.clientX - r.left) + 'px'; rmbCursor.style.top = (e.clientY - r.top) + 'px';
+}
+let rmbDraw = null;
+const stageEl = $('#rmb-stage');
+stageEl.addEventListener('pointermove', e => { rmbMoveCursor(e); if (rmbDraw) rmbStroke(e); });
+stageEl.addEventListener('pointerleave', () => rmbCursor.style.display = 'none');
+stageEl.addEventListener('pointerdown', e => {
+  if (e.button > 0 || rmb.tool === 'pan') return;
+  e.preventDefault();
+  if (rmb.tool === 'wand') return rmbWand(e);
+  rmbPushUndo({ m: rmbMaskAlpha() });
+  stageEl.setPointerCapture(e.pointerId);
+  rmbDraw = { last: rmbPt(e) }; rmbStroke(e);
+});
+const rmbEnd = () => { rmbDraw = null; };
+stageEl.addEventListener('pointerup', rmbEnd); stageEl.addEventListener('pointercancel', rmbEnd);
+function rmbStroke(e) {
+  const p = rmbPt(e), r = rmbRadius();
+  rmbM.globalCompositeOperation = rmb.tool === 'erase' ? 'destination-out' : 'source-over';
+  rmbM.strokeStyle = rmbM.fillStyle = RMB_COLOR; rmbM.lineWidth = r * 2; rmbM.lineCap = rmbM.lineJoin = 'round';
+  rmbM.beginPath(); rmbM.moveTo(rmbDraw.last[0], rmbDraw.last[1]); rmbM.lineTo(p[0], p[1]); rmbM.stroke();
+  rmbM.beginPath(); rmbM.arc(p[0], p[1], r, 0, Math.PI * 2); rmbM.fill();
+  rmbM.globalCompositeOperation = 'source-over';
+  rmbDraw.last = p;
+}
+function rmbWand(e) {
+  const [fx, fy] = rmbPt(e), w = rmbImg.width, h = rmbImg.height, x = clamp(Math.floor(fx), 0, w - 1), y = clamp(Math.floor(fy), 0, h - 1);
+  const d = rmbI.getImageData(0, 0, w, h).data;
+  // Si el toque cae en el borde suavizado de una letra, su color se parece al fondo y la varita
+  // agarraría de más. En ese caso se toma el color del cuerpo de la letra: de los dos colores
+  // que hay alrededor del toque, el que ocupa menos en una zona más amplia (la marca, no el fondo).
+  const rad = Math.max(3, Math.round(Math.max(w, h) / 300));
+  const col = o => [d[o], d[o + 1], d[o + 2]], dist = (p, q) => (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + (p[2] - q[2]) ** 2;
+  const win = r => { const out = []; for (let yy = Math.max(0, y - r); yy <= Math.min(h - 1, y + r); yy++) for (let xx = Math.max(0, x - r); xx <= Math.min(w - 1, x + r); xx++) out.push((yy * w + xx) * 4); return out; };
+  let o0 = (y * w + x) * 4;
+  const tap = col(o0), small = win(rad);
+  let A = col(small[0]), B = A;
+  for (const o of small) if (dist(col(o), A) > dist(B, A)) B = col(o);
+  for (const o of small) if (dist(col(o), B) > dist(A, B)) A = col(o);
+  for (let it = 0; it < 6; it++) {
+    const sa = [0, 0, 0, 0], sb = [0, 0, 0, 0];
+    for (const o of small) { const c = col(o), t = dist(c, A) <= dist(c, B) ? sa : sb; t[0] += c[0]; t[1] += c[1]; t[2] += c[2]; t[3]++; }
+    if (sa[3]) A = [sa[0] / sa[3], sa[1] / sa[3], sa[2] / sa[3]]; if (sb[3]) B = [sb[0] / sb[3], sb[1] / sb[3], sb[2] / sb[3]];
+  }
+  const dAB = dist(A, B), dA = dist(tap, A), dB = dist(tap, B);
+  if (dAB > 40 * 40 && Math.min(dA, dB) > dAB * 0.12) { // es un píxel de borde
+    let na = 0, nb = 0;
+    for (const o of win(rad * 4)) { const c = col(o); if (dist(c, A) <= dist(c, B)) na++; else nb++; }
+    const mark = na <= nb ? A : B, other = mark === A ? B : A;
+    let best = -1;
+    for (const o of small) { const c = col(o); if (dist(c, mark) < dist(c, other)) { const q = dist(c, other); if (q > best) { best = q; o0 = o; } } }
+  }
+  const r0 = d[o0], g0 = d[o0 + 1], b0 = d[o0 + 2];
+  const tol = +$('#rmb-tol').value, thr = tol * tol * 2;
+  // distancia en luminancia + color (YCbCr) con el color pesando el triple:
+  // así una marca roja clara no se confunde con el borde gris del texto negro
+  const Y0 = .299 * r0 + .587 * g0 + .114 * b0, Cb0 = -.169 * r0 - .331 * g0 + .5 * b0, Cr0 = .5 * r0 - .419 * g0 - .081 * b0;
+  const near = k => {
+    const o = k * 4, r = d[o], g = d[o + 1], b = d[o + 2];
+    const dy = .299 * r + .587 * g + .114 * b - Y0, dcb = 3 * (-.169 * r - .331 * g + .5 * b - Cb0), dcr = 3 * (.5 * r - .419 * g - .081 * b - Cr0);
+    return dy * dy + dcb * dcb + dcr * dcr <= thr;
+  };
+  const m = rmbMaskAlpha(); rmbPushUndo({ m: m.slice() });
+  let count = 0;
+  if ($('#rmb-all').checked) { for (let k = 0; k < w * h; k++) if (!m[k] && near(k)) { m[k] = 1; count++; } }
+  else {
+    const seen = new Uint8Array(w * h), stack = [y * w + x]; seen[y * w + x] = 1;
+    while (stack.length) {
+      const k = stack.pop(); if (!near(k)) continue;
+      if (!m[k]) { m[k] = 1; count++; }
+      const cx = k % w;
+      if (cx > 0 && !seen[k - 1]) { seen[k - 1] = 1; stack.push(k - 1); }
+      if (cx < w - 1 && !seen[k + 1]) { seen[k + 1] = 1; stack.push(k + 1); }
+      if (k >= w && !seen[k - w]) { seen[k - w] = 1; stack.push(k - w); }
+      if (k < w * (h - 1) && !seen[k + w]) { seen[k + w] = 1; stack.push(k + w); }
+    }
+  }
+  rmbPutMask(m);
+  if (count > w * h * 0.4) toast('Se seleccionó gran parte de la imagen. Bajá la tolerancia o deshacé.', 'err');
+}
+/* arrastrar para moverse cuando la imagen está ampliada (con mouse) */
+(() => {
+  const wrap = $('#rmb-wrap'); let drag = null;
+  wrap.addEventListener('pointerdown', e => { if (rmb.tool !== 'pan' || e.pointerType !== 'mouse') return; drag = { x: e.clientX, y: e.clientY, l: wrap.scrollLeft, t: wrap.scrollTop }; wrap.setPointerCapture(e.pointerId); });
+  wrap.addEventListener('pointermove', e => { if (!drag) return; wrap.scrollLeft = drag.l - (e.clientX - drag.x); wrap.scrollTop = drag.t - (e.clientY - drag.y); });
+  const end = () => drag = null; wrap.addEventListener('pointerup', end); wrap.addEventListener('pointercancel', end);
+})();
+
+$('#rmb-apply').onclick = async () => {
+  const w = rmbImg.width, h = rmbImg.height, m0 = rmbMaskAlpha();
+  let cnt = 0; for (let k = 0; k < m0.length; k++) cnt += m0[k];
+  if (!cnt) return toast('Primero marcá la marca de agua con el pincel o la varita', 'err');
+  busy(true, 'Quitando la marca…'); await tick(); await tick();
+  try {
+    const id = rmbI.getImageData(0, 0, w, h);
+    rmbPushUndo({ m: m0, img: new ImageData(new Uint8ClampedArray(id.data), w, h), dirty: rmb.dirty });
+    const R = Math.max(4, Math.round(Math.max(w, h) / 450));
+    rmInpaint(id.data, w, h, rmDilate(m0, w, h, Math.max(1, Math.round(R / 3))), R);
+    rmbI.putImageData(id, 0, 0);
+    rmbM.clearRect(0, 0, w, h);
+    rmb.dirty = true; rmbSync();
+  } catch (e) { toast('No se pudo quitar: ' + e.message, 'err'); }
+  finally { busy(false); }
+};
+function rmbKeep() { if (rmb.kind === 'pdf' && rmb.dirty) rmb.edited.set(rmb.page, rmbClone(rmbImg)); }
+async function rmbGo(n) {
+  if (n < 1 || n > rmb.count) return;
+  rmbKeep();
+  busy(true, 'Abriendo página ' + n + '…');
+  try {
+    rmb.page = n;
+    const r = await rmbRenderPdfPage(n); rmb.orig = r.canvas;
+    rmbSetCanvas(rmb.edited.get(n) || r.canvas);
+    if (rmb.edited.has(n)) { rmb.dirty = true; rmbSync(); }
+  } finally { busy(false); }
+}
+$('#rmb-prev').onclick = () => rmbGo(rmb.page - 1);
+$('#rmb-next').onclick = () => rmbGo(rmb.page + 1);
+$('#rmb-save').onclick = async () => {
+  if (rmb.kind === 'image') {
+    if (!rmb.dirty) return toast('Todavía no quitaste nada de la imagen', 'err');
+    const type = rmb.png ? 'image/png' : 'image/jpeg';
+    const blob = await new Promise(r => rmbImg.toBlob(r, type, .93));
+    return saveFile(blob, rmb.name.replace(/\.[^.]+$/, '') + '-sin-marca.' + (rmb.png ? 'png' : 'jpg'), type);
+  }
+  rmbKeep();
+  if (!rmb.edited.size) return toast('Todavía no quitaste nada del PDF', 'err');
+  busy(true, 'Armando el PDF…');
+  try {
+    const doc = await PDFDocument.load(rmb.bytes);
+    for (const [n, canvas] of [...rmb.edited].sort((a, b) => a[0] - b[0])) {
+      busyMsg('Guardando página ' + n + '…'); await tick();
+      const pdfPage = await rmb.pdf.getPage(n), vp = pdfPage.getViewport({ scale: 1 });
+      const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', .9));
+      const img = await doc.embedJpg(new Uint8Array(await blob.arrayBuffer()));
+      const np = doc.insertPage(n - 1, [vp.width, vp.height]);
+      np.drawImage(img, { x: 0, y: 0, width: vp.width, height: vp.height });
+      doc.removePage(n);
+    }
+    const out = await doc.save(); busy(false);
+    await saveFile(out, baseName(rmb.name) + '-sin-marca.pdf');
+  } catch (e) { busy(false); toast('No se pudo guardar: ' + e.message, 'err'); }
+};
+let rmbRs; window.addEventListener('resize', () => { clearTimeout(rmbRs); rmbRs = setTimeout(rmbFit, 200); });
+document.addEventListener('keydown', e => {
+  if (current !== 'rm' || $('#rm-hand').hidden || !rmb.ready) return;
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); $('#rmb-undo').click(); }
+});
 
 /* ---------- instalar como app ---------- */
 let deferredPrompt = null;
